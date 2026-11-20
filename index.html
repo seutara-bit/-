@@ -7,12 +7,127 @@
   <style>
     :root {
       --primary: #1d6feb;
+      --primary-soft: #eef5ff;
+      --primary-border: #b6d4fe;
+      --primary-text: #0a49a6;
       --bg: #f4f6f9;
       --card: #ffffff;
       --text: #1f2328;
       --sub: #636c76;
       --border: #d0d7de;
+      --mini-bg: #f8f9fa;
+      --sub-btn-bg: #f6f8fa;
+      --settings-bg: #f8fbff;
+      --settings-divider: #e2ecf8;
+      --divider: #eeeeee;
+      --muted: #8c959f;
+      --danger: #c92a2a;
+      --danger-bg: #fff0f0;
+      --danger-border: #ffc9c9;
+      --ok: #2b8a3e;
+      --ok-bg: #ebfbee;
+      --ok-border: #b2f2bb;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     }
+
+    body[data-theme="warm"] {
+      --bg: #f7f4ee;
+      --card: #fffdf9;
+      --text: #2b2620;
+      --sub: #6e655b;
+      --border: #e2dacd;
+      --mini-bg: #faf7f2;
+      --sub-btn-bg: #f9f5ee;
+      --settings-bg: #fcfaf6;
+      --settings-divider: #efe7da;
+      --divider: #f0ebe2;
+      --muted: #968c80;
+    }
+
+    body[data-theme="dark"] {
+      --bg: #0f141b;
+      --card: #18202c;
+      --text: #e6edf3;
+      --sub: #9aa7b8;
+      --border: #2d3748;
+      --mini-bg: #222c3a;
+      --sub-btn-bg: #1e2836;
+      --settings-bg: #151d28;
+      --settings-divider: #263244;
+      --divider: #253041;
+      --muted: #768390;
+      --danger-bg: #36191e;
+      --danger-border: #6e2b35;
+      --ok-bg: #163022;
+      --ok-border: #275c3e;
+      --shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
+
+    body[data-accent="blue"] {
+      --primary: #1d6feb;
+      --primary-soft: #eef5ff;
+      --primary-border: #b6d4fe;
+      --primary-text: #0a49a6;
+    }
+    body[data-theme="dark"][data-accent="blue"] {
+      --primary: #3b82f6;
+      --primary-soft: #1b2f4d;
+      --primary-border: #2c4c7e;
+      --primary-text: #93c5fd;
+    }
+
+    body[data-accent="green"] {
+      --primary: #198754;
+      --primary-soft: #ebfbee;
+      --primary-border: #b2f2bb;
+      --primary-text: #146c43;
+    }
+    body[data-theme="dark"][data-accent="green"] {
+      --primary: #22c55e;
+      --primary-soft: #163324;
+      --primary-border: #24573d;
+      --primary-text: #86efac;
+    }
+
+    body[data-accent="purple"] {
+      --primary: #7c3aed;
+      --primary-soft: #f3e8ff;
+      --primary-border: #d8b4fe;
+      --primary-text: #5b21b6;
+    }
+    body[data-theme="dark"][data-accent="purple"] {
+      --primary: #a855f7;
+      --primary-soft: #2b1c40;
+      --primary-border: #4a2f6e;
+      --primary-text: #d8b4fe;
+    }
+
+    body[data-accent="orange"] {
+      --primary: #d96b14;
+      --primary-soft: #fff4e6;
+      --primary-border: #ffd8a8;
+      --primary-text: #b35208;
+    }
+    body[data-theme="dark"][data-accent="orange"] {
+      --primary: #fb923c;
+      --primary-soft: #382414;
+      --primary-border: #613c1f;
+      --primary-text: #fdba74;
+    }
+
+    body[data-accent="rose"] {
+      --primary: #d6336c;
+      --primary-soft: #fff0f6;
+      --primary-border: #fcc2d7;
+      --primary-text: #a61e4d;
+    }
+    body[data-theme="dark"][data-accent="rose"] {
+      --primary: #fb7185;
+      --primary-soft: #381924;
+      --primary-border: #61293c;
+      --primary-text: #fda4af;
+    }
+
     * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
@@ -21,6 +136,7 @@
       padding: 14px;
       background: var(--bg);
       color: var(--text);
+      transition: background 0.2s, color 0.2s;
     }
     h1 {
       font-size: 1.15rem;
@@ -30,7 +146,7 @@
       align-items: center;
     }
     .header-btn {
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 6px 10px;
@@ -40,16 +156,16 @@
       cursor: pointer;
     }
     .header-btn.active {
-      background: #eef5ff;
-      border-color: #b6d4fe;
-      color: #0a49a6;
+      background: var(--primary-soft);
+      border-color: var(--primary-border);
+      color: var(--primary-text);
     }
     .card {
       background: var(--card);
       border-radius: 12px;
       padding: 14px;
       margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      box-shadow: var(--shadow);
     }
     .section-header {
       display: flex;
@@ -70,7 +186,7 @@
       padding: 9px 10px;
       border: 1px solid var(--border);
       border-radius: 8px;
-      background: #fff;
+      background: var(--card);
       color: var(--text);
     }
     .row {
@@ -87,9 +203,9 @@
       margin-bottom: 4px;
     }
     .preset-btn {
-      border: 1px solid #b6d4fe;
-      background: #eef5ff;
-      color: #0a49a6;
+      border: 1px solid var(--primary-border);
+      background: var(--primary-soft);
+      color: var(--primary-text);
       border-radius: 8px;
       padding: 7px 10px;
       font-size: 0.85rem;
@@ -104,7 +220,7 @@
     .preset-time {
       font-size: 0.75rem;
       font-weight: normal;
-      color: #3b6cb7;
+      opacity: 0.85;
     }
     .preset-del {
       background: #d93025;
@@ -126,7 +242,7 @@
     }
     .mini-btn {
       border: 1px solid var(--border);
-      background: #f8f9fa;
+      background: var(--mini-bg);
       border-radius: 6px;
       padding: 4px 8px;
       font-size: 0.75rem;
@@ -144,7 +260,7 @@
     .danger-link-btn {
       background: none;
       border: none;
-      color: #c92a2a;
+      color: var(--danger);
       font-size: 0.78rem;
       cursor: pointer;
       padding: 2px 4px;
@@ -165,7 +281,7 @@
       width: 100%;
       padding: 8px;
       font-size: 0.82rem;
-      background: #f6f8fa;
+      background: var(--sub-btn-bg);
       color: var(--text);
       border: 1px dashed var(--border);
       border-radius: 8px;
@@ -173,24 +289,54 @@
       margin-top: 8px;
     }
     .settings-box {
-      border: 1px solid #b6d4fe;
-      background: #f8fbff;
+      border: 1px solid var(--primary-border);
+      background: var(--settings-bg);
     }
     .settings-group {
       margin-bottom: 14px;
       padding-bottom: 12px;
-      border-bottom: 1px solid #e2ecf8;
+      border-bottom: 1px solid var(--settings-divider);
     }
     .settings-group:last-of-type {
       border-bottom: none;
       margin-bottom: 6px;
       padding-bottom: 0;
     }
+    .choice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .choice-btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .choice-btn.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-text);
+    }
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
     .tag-chip {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: #fff;
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 999px;
       padding: 4px 10px;
@@ -199,7 +345,7 @@
     .tag-remove {
       background: none;
       border: none;
-      color: #c92a2a;
+      color: var(--danger);
       font-weight: bold;
       cursor: pointer;
       padding: 0 2px;
@@ -230,7 +376,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 10px 0;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--divider);
       gap: 8px;
     }
     .memo-item:last-child { border-bottom: none; }
@@ -238,7 +384,7 @@
     .memo-reason { font-size: 0.95rem; margin-top: 2px; word-break: break-all; }
     .trash-item .memo-date,
     .trash-item .memo-reason {
-      color: #8c959f;
+      color: var(--muted);
     }
     .item-actions {
       display: flex;
@@ -246,27 +392,27 @@
       flex-shrink: 0;
     }
     .copy-btn {
-      background: #eef5ff;
-      color: #0a49a6;
-      border: 1px solid #b6d4fe;
+      background: var(--primary-soft);
+      color: var(--primary-text);
+      border: 1px solid var(--primary-border);
       border-radius: 6px;
       padding: 6px 9px;
       font-size: 0.78rem;
       cursor: pointer;
     }
     .restore-btn {
-      background: #ebfbee;
-      color: #2b8a3e;
-      border: 1px solid #b2f2bb;
+      background: var(--ok-bg);
+      color: var(--ok);
+      border: 1px solid var(--ok-border);
       border-radius: 6px;
       padding: 6px 9px;
       font-size: 0.78rem;
       cursor: pointer;
     }
     .del-btn {
-      background: #fff0f0;
-      color: #c92a2a;
-      border: 1px solid #ffc9c9;
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
       border-radius: 6px;
       padding: 6px 9px;
       font-size: 0.78rem;
@@ -287,15 +433,20 @@
     }
     .trash-body {
       margin-top: 10px;
-      border-top: 1px solid #eee;
+      border-top: 1px solid var(--divider);
       padding-top: 6px;
+    }
+    .empty-msg {
+      font-size: 0.82rem;
+      color: var(--sub);
+      padding: 4px 0;
     }
     .toast {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(30, 30, 30, 0.9);
+      background: rgba(20, 24, 30, 0.92);
       color: #fff;
       padding: 8px 16px;
       border-radius: 999px;
@@ -317,8 +468,26 @@
   <!-- ユーザー別設定パネル -->
   <div class="card settings-box" id="settingsCard" style="display:none;">
     <div class="section-header">
-      <label style="margin:0;color:#0a49a6;">自分用カスタマイズ（この端末に保存）</label>
+      <label style="margin:0;color:var(--primary-text);">自分用カスタマイズ（この端末に保存）</label>
       <button type="button" class="danger-link-btn" id="resetConfigBtn">初期値に戻す</button>
+    </div>
+
+    <div class="settings-group">
+      <label>テーマ</label>
+      <div class="choice-row" id="themeChoices">
+        <button type="button" class="choice-btn" data-theme-val="light">ライト</button>
+        <button type="button" class="choice-btn" data-theme-val="warm">やわらか</button>
+        <button type="button" class="choice-btn" data-theme-val="dark">ダーク</button>
+      </div>
+
+      <label style="margin-top:10px;">アクセントカラー</label>
+      <div class="choice-row" id="accentChoices">
+        <button type="button" class="choice-btn" data-accent-val="blue"><span class="swatch" style="background:#1d6feb;"></span>ブルー</button>
+        <button type="button" class="choice-btn" data-accent-val="green"><span class="swatch" style="background:#198754;"></span>グリーン</button>
+        <button type="button" class="choice-btn" data-accent-val="purple"><span class="swatch" style="background:#7c3aed;"></span>パープル</button>
+        <button type="button" class="choice-btn" data-accent-val="orange"><span class="swatch" style="background:#d96b14;"></span>オレンジ</button>
+        <button type="button" class="choice-btn" data-accent-val="rose"><span class="swatch" style="background:#d6336c;"></span>ローズ</button>
+      </div>
     </div>
 
     <div class="settings-group">
@@ -345,11 +514,15 @@
     </div>
 
     <div class="settings-group">
-      <label>終了時刻の下のボタン（開始時刻から＋何分）</label>
-      <div class="mini-btns" id="endAddTags"></div>
+      <label>終了時刻の下のボタン（＋何分／時刻指定）</label>
+      <div class="mini-btns" id="endQuickTags"></div>
       <div class="add-inline">
-        <input type="number" id="newEndAddInput" min="5" max="720" step="5" placeholder="例：45（分）" />
-        <button type="button" class="small-add-btn" id="addEndAddBtn">追加</button>
+        <input type="number" id="newEndAddInput" min="5" max="720" step="5" placeholder="＋何分（例：45）" />
+        <button type="button" class="small-add-btn" id="addEndAddBtn">分を追加</button>
+      </div>
+      <div class="add-inline">
+        <select id="newEndTimeSelect"></select>
+        <button type="button" class="small-add-btn" id="addEndTimeBtn">時刻を追加</button>
       </div>
     </div>
   </div>
@@ -424,14 +597,20 @@
     const MEMO_KEY = "ot_memos_v2";
     const TRASH_KEY = "ot_trash_v2";
     const PRESET_KEY = "ot_presets_v2";
-    const CONFIG_KEY = "ot_config_v1";
+    const CONFIG_KEY = "ot_config_v2";
     const MAX_TRASH = 50;
 
+    // endQuickItems: { type: "add", minutes: 15 } または { type: "time", time: "18:00" }
     const DEFAULT_CONFIG = {
+      theme: "light",
+      accent: "blue",
       defaultStart: "17:15",
       defaultEnd: "17:45",
       startQuickTimes: ["17:15"],
-      endAddMinutes: [15, 30]
+      endQuickItems: [
+        { type: "add", minutes: 15 },
+        { type: "add", minutes: 30 }
+      ]
     };
 
     const DEFAULT_PRESETS = [
@@ -456,9 +635,10 @@
     const defaultStartSelect = document.getElementById("defaultStartSelect");
     const defaultEndSelect = document.getElementById("defaultEndSelect");
     const startQuickTags = document.getElementById("startQuickTags");
-    const endAddTags = document.getElementById("endAddTags");
+    const endQuickTags = document.getElementById("endQuickTags");
     const newStartQuickSelect = document.getElementById("newStartQuickSelect");
     const newEndAddInput = document.getElementById("newEndAddInput");
+    const newEndTimeSelect = document.getElementById("newEndTimeSelect");
     const startQuickBtnsArea = document.getElementById("startQuickBtnsArea");
     const endQuickBtnsArea = document.getElementById("endQuickBtnsArea");
 
@@ -478,20 +658,36 @@
       }[s]));
     }
 
-    // 設定管理
+    function cloneDefaultConfig() {
+      return {
+        theme: DEFAULT_CONFIG.theme,
+        accent: DEFAULT_CONFIG.accent,
+        defaultStart: DEFAULT_CONFIG.defaultStart,
+        defaultEnd: DEFAULT_CONFIG.defaultEnd,
+        startQuickTimes: [...DEFAULT_CONFIG.startQuickTimes],
+        endQuickItems: DEFAULT_CONFIG.endQuickItems.map(x => ({ ...x }))
+      };
+    }
+
     function loadConfig() {
       try {
         const raw = localStorage.getItem(CONFIG_KEY);
-        if (!raw) return { ...DEFAULT_CONFIG, startQuickTimes: [...DEFAULT_CONFIG.startQuickTimes], endAddMinutes: [...DEFAULT_CONFIG.endAddMinutes] };
+        if (!raw) return cloneDefaultConfig();
         const parsed = JSON.parse(raw);
+        let endItems = Array.isArray(parsed.endQuickItems) ? parsed.endQuickItems : null;
+        if (!endItems && Array.isArray(parsed.endAddMinutes)) {
+          endItems = parsed.endAddMinutes.map(m => ({ type: "add", minutes: Number(m) }));
+        }
         return {
+          theme: parsed.theme || DEFAULT_CONFIG.theme,
+          accent: parsed.accent || DEFAULT_CONFIG.accent,
           defaultStart: parsed.defaultStart || DEFAULT_CONFIG.defaultStart,
           defaultEnd: parsed.defaultEnd || DEFAULT_CONFIG.defaultEnd,
           startQuickTimes: Array.isArray(parsed.startQuickTimes) ? parsed.startQuickTimes : [...DEFAULT_CONFIG.startQuickTimes],
-          endAddMinutes: Array.isArray(parsed.endAddMinutes) ? parsed.endAddMinutes : [...DEFAULT_CONFIG.endAddMinutes]
+          endQuickItems: endItems || DEFAULT_CONFIG.endQuickItems.map(x => ({ ...x }))
         };
       } catch {
-        return { ...DEFAULT_CONFIG, startQuickTimes: [...DEFAULT_CONFIG.startQuickTimes], endAddMinutes: [...DEFAULT_CONFIG.endAddMinutes] };
+        return cloneDefaultConfig();
       }
     }
 
@@ -499,7 +695,18 @@
       localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
     }
 
-    // 5分刻みの時刻オプション生成（00:00〜23:55）
+    function applyAppearance(cfg) {
+      document.body.setAttribute("data-theme", cfg.theme);
+      document.body.setAttribute("data-accent", cfg.accent);
+
+      document.querySelectorAll("[data-theme-val]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.themeVal === cfg.theme);
+      });
+      document.querySelectorAll("[data-accent-val]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.accentVal === cfg.accent);
+      });
+    }
+
     function initTimeSelects() {
       const options = [];
       for (let h = 0; h < 24; h++) {
@@ -515,6 +722,7 @@
       defaultStartSelect.innerHTML = html;
       defaultEndSelect.innerHTML = html;
       newStartQuickSelect.innerHTML = html;
+      newEndTimeSelect.innerHTML = html;
 
       const cfg = loadConfig();
       startSelect.value = cfg.defaultStart;
@@ -522,12 +730,17 @@
       defaultStartSelect.value = cfg.defaultStart;
       defaultEndSelect.value = cfg.defaultEnd;
       newStartQuickSelect.value = cfg.defaultStart;
+      newEndTimeSelect.value = "18:00";
+    }
+
+    function formatEndItemLabel(item) {
+      return item.type === "time" ? item.time : `+${item.minutes}分`;
     }
 
     function renderQuickControls() {
       const cfg = loadConfig();
 
-      // 開始時刻の下のボタン（常に「今」を最後に配置）
+      // 開始時刻の下のボタン
       startQuickBtnsArea.innerHTML = "";
       cfg.startQuickTimes.forEach(t => {
         const b = document.createElement("button");
@@ -544,7 +757,7 @@
       nowStartBtn.addEventListener("click", () => { startSelect.value = getRoundedNow5(); });
       startQuickBtnsArea.appendChild(nowStartBtn);
 
-      // 終了時刻の下のボタン（常に「今」を最初に配置）
+      // 終了時刻の下のボタン
       endQuickBtnsArea.innerHTML = "";
       const nowEndBtn = document.createElement("button");
       nowEndBtn.type = "button";
@@ -553,20 +766,24 @@
       nowEndBtn.addEventListener("click", () => { endSelect.value = getRoundedNow5(); });
       endQuickBtnsArea.appendChild(nowEndBtn);
 
-      cfg.endAddMinutes.forEach(min => {
+      cfg.endQuickItems.forEach(item => {
         const b = document.createElement("button");
         b.type = "button";
         b.className = "mini-btn";
-        b.textContent = `+${min}分`;
+        b.textContent = formatEndItemLabel(item);
         b.addEventListener("click", () => {
-          endSelect.value = addMinutesToTime(startSelect.value, min);
+          if (item.type === "time") {
+            endSelect.value = item.time;
+          } else {
+            endSelect.value = addMinutesToTime(startSelect.value, item.minutes);
+          }
         });
         endQuickBtnsArea.appendChild(b);
       });
 
       // 設定画面内のタグ一覧
       startQuickTags.innerHTML = cfg.startQuickTimes.length === 0
-        ? '<span style="font-size:0.78rem;color:#636c76;">なし</span>'
+        ? '<span class="empty-msg">なし</span>'
         : cfg.startQuickTimes.map((t, idx) => `
             <span class="tag-chip">
               <span>${escapeHtml(t)}</span>
@@ -574,12 +791,12 @@
             </span>
           `).join("");
 
-      endAddTags.innerHTML = cfg.endAddMinutes.length === 0
-        ? '<span style="font-size:0.78rem;color:#636c76;">なし</span>'
-        : cfg.endAddMinutes.map((m, idx) => `
+      endQuickTags.innerHTML = cfg.endQuickItems.length === 0
+        ? '<span class="empty-msg">なし</span>'
+        : cfg.endQuickItems.map((item, idx) => `
             <span class="tag-chip">
-              <span>+${escapeHtml(m)}分</span>
-              <button type="button" class="tag-remove" onclick="removeEndAdd(${idx})" aria-label="削除">×</button>
+              <span>${escapeHtml(formatEndItemLabel(item))}</span>
+              <button type="button" class="tag-remove" onclick="removeEndQuick(${idx})" aria-label="削除">×</button>
             </span>
           `).join("");
     }
@@ -591,9 +808,9 @@
       renderQuickControls();
     };
 
-    window.removeEndAdd = function(idx) {
+    window.removeEndQuick = function(idx) {
       const cfg = loadConfig();
-      cfg.endAddMinutes.splice(idx, 1);
+      cfg.endQuickItems.splice(idx, 1);
       saveConfig(cfg);
       renderQuickControls();
     };
@@ -602,6 +819,26 @@
       isSettingsOpen = !isSettingsOpen;
       settingsCard.style.display = isSettingsOpen ? "block" : "none";
       toggleSettingsBtn.classList.toggle("active", isSettingsOpen);
+    });
+
+    document.querySelectorAll("[data-theme-val]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cfg = loadConfig();
+        cfg.theme = btn.dataset.themeVal;
+        saveConfig(cfg);
+        applyAppearance(cfg);
+        showToast("テーマを変更したよ");
+      });
+    });
+
+    document.querySelectorAll("[data-accent-val]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cfg = loadConfig();
+        cfg.accent = btn.dataset.accentVal;
+        saveConfig(cfg);
+        applyAppearance(cfg);
+        showToast("カラーを変更したよ");
+      });
     });
 
     defaultStartSelect.addEventListener("change", () => {
@@ -640,9 +877,9 @@
         return;
       }
       const cfg = loadConfig();
-      if (!cfg.endAddMinutes.includes(min)) {
-        cfg.endAddMinutes.push(min);
-        cfg.endAddMinutes.sort((a, b) => a - b);
+      const exists = cfg.endQuickItems.some(x => x.type === "add" && x.minutes === min);
+      if (!exists) {
+        cfg.endQuickItems.push({ type: "add", minutes: min });
         saveConfig(cfg);
         renderQuickControls();
         newEndAddInput.value = "";
@@ -650,13 +887,22 @@
       }
     });
 
+    document.getElementById("addEndTimeBtn").addEventListener("click", () => {
+      const t = newEndTimeSelect.value;
+      const cfg = loadConfig();
+      const exists = cfg.endQuickItems.some(x => x.type === "time" && x.time === t);
+      if (!exists) {
+        cfg.endQuickItems.push({ type: "time", time: t });
+        saveConfig(cfg);
+        renderQuickControls();
+        showToast(`${t} ボタンを追加したよ`);
+      }
+    });
+
     document.getElementById("resetConfigBtn").addEventListener("click", () => {
-      const fresh = {
-        ...DEFAULT_CONFIG,
-        startQuickTimes: [...DEFAULT_CONFIG.startQuickTimes],
-        endAddMinutes: [...DEFAULT_CONFIG.endAddMinutes]
-      };
+      const fresh = cloneDefaultConfig();
       saveConfig(fresh);
+      applyAppearance(fresh);
       defaultStartSelect.value = fresh.defaultStart;
       defaultEndSelect.value = fresh.defaultEnd;
       startSelect.value = fresh.defaultStart;
@@ -709,7 +955,7 @@
     function renderPresets() {
       const presets = loadPresets();
       if (presets.length === 0) {
-        presetArea.innerHTML = '<span style="font-size:0.8rem;color:#636c76;">下の「マイボタンに登録」からよく使う項目を追加できるよ</span>';
+        presetArea.innerHTML = '<span class="empty-msg">下の「マイボタンに登録」からよく使う項目を追加できるよ</span>';
         return;
       }
       presetArea.innerHTML = presets.map(p => `
@@ -800,7 +1046,7 @@
       const memos = loadMemos();
       countSpan.textContent = memos.length;
       if (memos.length === 0) {
-        listArea.innerHTML = '<div style="font-size:0.85rem;color:#636c76;padding:6px 0;">メモはまだないよ</div>';
+        listArea.innerHTML = '<div class="empty-msg">メモはまだないよ</div>';
       } else {
         listArea.innerHTML = memos.map(m => `
           <div class="memo-item">
@@ -822,7 +1068,7 @@
       const trash = loadTrash();
       trashCountSpan.textContent = trash.length;
       if (trash.length === 0) {
-        trashListArea.innerHTML = '<div style="font-size:0.82rem;color:#636c76;padding:6px 0;">ゴミ箱は空だよ</div>';
+        trashListArea.innerHTML = '<div class="empty-msg">ゴミ箱は空だよ</div>';
         return;
       }
       trashListArea.innerHTML = trash.map(m => `
@@ -916,6 +1162,8 @@
     });
 
     // 初期化
+    const initialConfig = loadConfig();
+    applyAppearance(initialConfig);
     initTimeSelects();
     renderQuickControls();
     dateInput.value = formatDateOffset(0);
