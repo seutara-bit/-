@@ -180,7 +180,7 @@
       display: block;
       margin-bottom: 4px;
     }
-    input[type="date"], input[type="text"], input[type="number"], select {
+    input[type="date"], input[type="text"], input[type="number"], select, textarea {
       width: 100%;
       font-size: 1rem;
       padding: 9px 10px;
@@ -188,6 +188,38 @@
       border-radius: 8px;
       background: var(--card);
       color: var(--text);
+    }
+    textarea {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      resize: vertical;
+    }
+    .reason-wrap {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .reason-wrap input {
+      flex: 1;
+    }
+    .clear-x-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--mini-bg);
+      color: var(--sub);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .clear-x-btn:active {
+      transform: scale(0.96);
     }
     .row {
       display: flex;
@@ -371,6 +403,17 @@
       cursor: pointer;
       white-space: nowrap;
     }
+    .small-sec-btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
     .memo-item {
       display: flex;
       justify-content: space-between;
@@ -525,6 +568,20 @@
         <button type="button" class="small-add-btn" id="addEndTimeBtn">時刻を追加</button>
       </div>
     </div>
+
+    <div class="settings-group">
+      <label>バックアップ（書き出し・読み込み）</label>
+      <div class="mini-btns" style="margin-bottom:8px;">
+        <button type="button" class="small-sec-btn" id="exportCopyBtn">テキストをコピー</button>
+        <button type="button" class="small-sec-btn" id="exportFileBtn">ファイル保存</button>
+        <button type="button" class="small-sec-btn" id="importFileTriggerBtn">ファイルから読込</button>
+        <input type="file" id="importFileInput" accept=".json,application/json,text/plain" style="display:none;" />
+      </div>
+      <textarea id="backupArea" rows="3" placeholder="書き出しデータが表示されます。復元したいデータをここに貼り付けて「テキストから読込」を押してください。"></textarea>
+      <div class="add-inline">
+        <button type="button" class="small-add-btn" id="importTextBtn">テキストから読込</button>
+      </div>
+    </div>
   </div>
 
   <!-- マイボタン（定型セット） -->
@@ -562,7 +619,10 @@
 
     <div style="margin-bottom:10px;">
       <label for="reasonInput">理由</label>
-      <input type="text" id="reasonInput" placeholder="例：朝の会、急患対応、カルテ記載" />
+      <div class="reason-wrap">
+        <input type="text" id="reasonInput" placeholder="例：朝の会、急患対応、カルテ記載" />
+        <button type="button" class="clear-x-btn" id="clearReasonBtn" aria-label="理由をクリア" title="クリア">×</button>
+      </div>
     </div>
 
     <button type="button" class="primary-btn" id="saveBtn">メモを保存</button>
@@ -600,7 +660,6 @@
     const CONFIG_KEY = "ot_config_v2";
     const MAX_TRASH = 50;
 
-    // endQuickItems: { type: "add", minutes: 15 } または { type: "time", time: "18:00" }
     const DEFAULT_CONFIG = {
       theme: "light",
       accent: "blue",
@@ -621,6 +680,7 @@
     const startSelect = document.getElementById("startSelect");
     const endSelect = document.getElementById("endSelect");
     const reasonInput = document.getElementById("reasonInput");
+    const clearReasonBtn = document.getElementById("clearReasonBtn");
     const presetArea = document.getElementById("presetArea");
     const listArea = document.getElementById("listArea");
     const countSpan = document.getElementById("countSpan");
@@ -641,6 +701,9 @@
     const newEndTimeSelect = document.getElementById("newEndTimeSelect");
     const startQuickBtnsArea = document.getElementById("startQuickBtnsArea");
     const endQuickBtnsArea = document.getElementById("endQuickBtnsArea");
+
+    const backupArea = document.getElementById("backupArea");
+    const importFileInput = document.getElementById("importFileInput");
 
     let isEditPreset = false;
     let isTrashOpen = false;
@@ -724,6 +787,10 @@
       newStartQuickSelect.innerHTML = html;
       newEndTimeSelect.innerHTML = html;
 
+      syncTimeSelectsWithConfig();
+    }
+
+    function syncTimeSelectsWithConfig() {
       const cfg = loadConfig();
       startSelect.value = cfg.defaultStart;
       endSelect.value = cfg.defaultEnd;
@@ -740,7 +807,6 @@
     function renderQuickControls() {
       const cfg = loadConfig();
 
-      // 開始時刻の下のボタン
       startQuickBtnsArea.innerHTML = "";
       cfg.startQuickTimes.forEach(t => {
         const b = document.createElement("button");
@@ -757,7 +823,6 @@
       nowStartBtn.addEventListener("click", () => { startSelect.value = getRoundedNow5(); });
       startQuickBtnsArea.appendChild(nowStartBtn);
 
-      // 終了時刻の下のボタン
       endQuickBtnsArea.innerHTML = "";
       const nowEndBtn = document.createElement("button");
       nowEndBtn.type = "button";
@@ -781,7 +846,6 @@
         endQuickBtnsArea.appendChild(b);
       });
 
-      // 設定画面内のタグ一覧
       startQuickTags.innerHTML = cfg.startQuickTimes.length === 0
         ? '<span class="empty-msg">なし</span>'
         : cfg.startQuickTimes.map((t, idx) => `
@@ -903,12 +967,108 @@
       const fresh = cloneDefaultConfig();
       saveConfig(fresh);
       applyAppearance(fresh);
-      defaultStartSelect.value = fresh.defaultStart;
-      defaultEndSelect.value = fresh.defaultEnd;
-      startSelect.value = fresh.defaultStart;
-      endSelect.value = fresh.defaultEnd;
+      syncTimeSelectsWithConfig();
       renderQuickControls();
       showToast("設定を初期値に戻したよ");
+    });
+
+    // バックアップ（書き出し・読み込み）
+    function buildBackupPayload() {
+      return {
+        app: "overtime-memo",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        memos: loadMemos(),
+        trash: loadTrash(),
+        presets: loadPresets(),
+        config: loadConfig()
+      };
+    }
+
+    function applyBackupJson(rawText) {
+      const data = JSON.parse(rawText);
+      if (!data || typeof data !== "object") throw new Error("形式が不正");
+
+      if (Array.isArray(data.memos)) saveMemos(data.memos);
+      if (Array.isArray(data.trash)) saveTrash(data.trash);
+      if (Array.isArray(data.presets)) savePresets(data.presets);
+      if (data.config && typeof data.config === "object") {
+        localStorage.setItem(CONFIG_KEY, JSON.stringify(data.config));
+      }
+
+      const nextCfg = loadConfig();
+      applyAppearance(nextCfg);
+      syncTimeSelectsWithConfig();
+      renderQuickControls();
+      renderPresets();
+      renderMemos();
+      showToast("バックアップを読み込んだよ");
+    }
+
+    document.getElementById("exportCopyBtn").addEventListener("click", async () => {
+      const json = JSON.stringify(buildBackupPayload(), null, 2);
+      backupArea.value = json;
+      try {
+        await navigator.clipboard.writeText(json);
+        showToast("バックアップをコピーしたよ");
+      } catch {
+        backupArea.select();
+        showToast("枠内に書き出したよ（手動コピーしてね）");
+      }
+    });
+
+    document.getElementById("exportFileBtn").addEventListener("click", () => {
+      const json = JSON.stringify(buildBackupPayload(), null, 2);
+      backupArea.value = json;
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `overtime-memo-backup-${formatDateOffset(0)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("ファイルを保存したよ");
+    });
+
+    document.getElementById("importTextBtn").addEventListener("click", () => {
+      const text = backupArea.value.trim();
+      if (!text) {
+        showToast("先にデータを貼り付けてね");
+        return;
+      }
+      try {
+        applyBackupJson(text);
+      } catch {
+        showToast("読み込みに失敗したよ（形式を確認してね）");
+      }
+    });
+
+    document.getElementById("importFileTriggerBtn").addEventListener("click", () => {
+      importFileInput.click();
+    });
+
+    importFileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = String(reader.result || "");
+        backupArea.value = text;
+        try {
+          applyBackupJson(text);
+        } catch {
+          showToast("ファイルの読み込みに失敗したよ");
+        }
+      };
+      reader.readAsText(file);
+      importFileInput.value = "";
+    });
+
+    clearReasonBtn.addEventListener("click", () => {
+      reasonInput.value = "";
+      reasonInput.focus();
     });
 
     function formatDateOffset(offsetDays) {
