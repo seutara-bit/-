@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>時間外メモ</title>
+  <style>
+    :root {
+      --primary: #1d6feb;
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1f2328;
+      --sub: #636c76;
+      --border: #d0d7de;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 14px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    h1 {
+      font-size: 1.15rem;
+      margin: 4px 0 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--sub);
+      display: block;
+      margin-bottom: 4px;
+    }
+    input[type="date"], input[type="text"], select {
+      width: 100%;
+      font-size: 1rem;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .col { flex: 1; }
+    .preset-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .preset-btn {
+      border: 1px solid #b6d4fe;
+      background: #eef5ff;
+      color: #0a49a6;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-align: left;
+    }
+    .preset-btn:active { transform: scale(0.98); }
+    .preset-time {
+      font-size: 0.75rem;
+      font-weight: normal;
+      color: #3b6cb7;
+    }
+    .preset-del {
+      background: #d93025;
+      color: #fff;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 2px;
+    }
+    .mini-btns {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .mini-btn {
+      border: 1px solid var(--border);
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .text-link-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+    .primary-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .sub-save-btn {
+      width: 100%;
+      padding: 8px;
+      font-size: 0.82rem;
+      background: #f6f8fa;
+      color: var(--text);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .memo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      gap: 8px;
+    }
+    .memo-item:last-child { border-bottom: none; }
+    .memo-date { font-size: 0.8rem; color: var(--sub); font-weight: 600; }
+    .memo-reason { font-size: 0.95rem; margin-top: 2px; word-break: break-all; }
+    .item-actions {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+    .copy-btn {
+      background: #eef5ff;
+      color: #0a49a6;
+      border: 1px solid #b6d4fe;
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+    .del-btn {
+      background: #fff0f0;
+      color: #c92a2a;
+      border: 1px solid #ffc9c9;
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(30, 30, 30, 0.9);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <h1>時間外メモ</h1>
+
+  <!-- マイボタン（定型セット） -->
+  <div class="card">
+    <div class="section-header">
+      <label style="margin:0;">マイボタン（タップで入力）</label>
+      <button type="button" class="text-link-btn" id="toggleEditPreset">整理</button>
+    </div>
+    <div class="preset-grid" id="presetArea"></div>
+  </div>
+
+  <!-- 入力フォーム -->
+  <div class="card">
+    <div style="margin-bottom:10px;">
+      <label for="dateInput">日付</label>
+      <div class="row" style="margin-bottom:0;">
+        <div class="col"><input type="date" id="dateInput" /></div>
+        <button type="button" class="mini-btn" id="yesterdayBtn" style="padding:9px 10px;">昨日</button>
+        <button type="button" class="mini-btn" id="todayBtn" style="padding:9px 10px;">今日</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <label for="startSelect">開始時刻</label>
+        <select id="startSelect"></select>
+        <div class="mini-btns">
+          <button type="button" class="mini-btn" data-quick-start="17:15">17:15</button>
+          <button type="button" class="mini-btn" data-set-now="start">今</button>
+        </div>
+      </div>
+      <div class="col">
+        <label for="endSelect">終了時刻</label>
+        <select id="endSelect"></select>
+        <div class="mini-btns">
+          <button type="button" class="mini-btn" data-set-now="end">今</button>
+          <button type="button" class="mini-btn" data-add-min="15">+15分</button>
+          <button type="button" class="mini-btn" data-add-min="30">+30分</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <label for="reasonInput">理由</label>
+      <input type="text" id="reasonInput" placeholder="例：朝の会、急患対応、カルテ記載" />
+    </div>
+
+    <button type="button" class="primary-btn" id="saveBtn">メモを保存</button>
+    <button type="button" class="sub-save-btn" id="addPresetBtn">＋ この時刻と理由を「マイボタン」に登録</button>
+  </div>
+
+  <!-- 一覧 -->
+  <div class="card">
+    <div class="section-header">
+      <label style="margin:0;">未入力メモ（<span id="countSpan">0</span>件）</label>
+    </div>
+    <div id="listArea"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const MEMO_KEY = "ot_memos_v2";
+    const PRESET_KEY = "ot_presets_v2";
+    const DEFAULT_START = "17:15";
+
+    const DEFAULT_PRESETS = [
+      { id: "p1", start: "08:10", end: "08:30", reason: "朝の会" }
+    ];
+
+    const dateInput = document.getElementById("dateInput");
+    const startSelect = document.getElementById("startSelect");
+    const endSelect = document.getElementById("endSelect");
+    const reasonInput = document.getElementById("reasonInput");
+    const presetArea = document.getElementById("presetArea");
+    const listArea = document.getElementById("listArea");
+    const countSpan = document.getElementById("countSpan");
+    const toastEl = document.getElementById("toast");
+
+    let isEditPreset = false;
+
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(() => toastEl.classList.remove("show"), 1800);
+    }
+
+    // 5分刻みの時刻オプション生成（00:00〜23:55）
+    function initTimeSelects() {
+      const options = [];
+      for (let h = 0; h < 24; h++) {
+        for (let m = 0; m < 60; m += 5) {
+          const hh = String(h).padStart(2, "0");
+          const mm = String(m).padStart(2, "0");
+          options.push(`<option value="${hh}:${mm}">${hh}:${mm}</option>`);
+        }
+      }
+      const html = options.join("");
+      startSelect.innerHTML = html;
+      endSelect.innerHTML = html;
+      startSelect.value = DEFAULT_START;
+      endSelect.value = "17:45";
+    }
+
+    function formatDateOffset(offsetDays) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getRoundedNow5() {
+      const d = new Date();
+      let totalMin = d.getHours() * 60 + Math.round(d.getMinutes() / 5) * 5;
+      if (totalMin >= 24 * 60) totalMin = 23 * 60 + 55;
+      const hh = String(Math.floor(totalMin / 60)).padStart(2, "0");
+      const mm = String(totalMin % 60).padStart(2, "0");
+      return `${hh}:${mm}`;
+    }
+
+    function addMinutesToTime(timeStr, addMin) {
+      const [h, m] = timeStr.split(":").map(Number);
+      let total = (h * 60 + m + addMin) % (24 * 60);
+      if (total < 0) total += 24 * 60;
+      const hh = String(Math.floor(total / 60)).padStart(2, "0");
+      const mm = String(total % 60).padStart(2, "0");
+      return `${hh}:${mm}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[s]));
+    }
+
+    // プリセット管理
+    function loadPresets() {
+      try {
+        const raw = localStorage.getItem(PRESET_KEY);
+        return raw ? JSON.parse(raw) : DEFAULT_PRESETS;
+      } catch {
+        return DEFAULT_PRESETS;
+      }
+    }
+
+    function savePresets(list) {
+      localStorage.setItem(PRESET_KEY, JSON.stringify(list));
+    }
+
+    function renderPresets() {
+      const presets = loadPresets();
+      if (presets.length === 0) {
+        presetArea.innerHTML = '<span style="font-size:0.8rem;color:#636c76;">下の「マイボタンに登録」からよく使う項目を追加できるよ</span>';
+        return;
+      }
+      presetArea.innerHTML = presets.map(p => `
+        <button type="button" class="preset-btn" onclick="applyPreset('${p.id}')">
+          <span>${escapeHtml(p.reason)}</span>
+          <span class="preset-time">${p.start}〜${p.end}</span>
+          ${isEditPreset ? `<span class="preset-del" onclick="deletePreset(event, '${p.id}')">×</span>` : ""}
+        </button>
+      `).join("");
+    }
+
+    window.applyPreset = function(id) {
+      if (isEditPreset) return;
+      const p = loadPresets().find(x => x.id === id);
+      if (!p) return;
+      startSelect.value = p.start;
+      endSelect.value = p.end;
+      reasonInput.value = p.reason;
+      showToast(`「${p.reason}」をセットしたよ`);
+    };
+
+    window.deletePreset = function(e, id) {
+      e.stopPropagation();
+      const next = loadPresets().filter(x => x.id !== id);
+      savePresets(next);
+      renderPresets();
+    };
+
+    document.getElementById("toggleEditPreset").addEventListener("click", (e) => {
+      isEditPreset = !isEditPreset;
+      e.target.textContent = isEditPreset ? "完了" : "整理";
+      renderPresets();
+    });
+
+    document.getElementById("addPresetBtn").addEventListener("click", () => {
+      const reason = reasonInput.value.trim();
+      if (!reason) {
+        showToast("先に「理由」を入れてね");
+        reasonInput.focus();
+        return;
+      }
+      const presets = loadPresets();
+      presets.push({
+        id: "p_" + Date.now(),
+        start: startSelect.value,
+        end: endSelect.value,
+        reason
+      });
+      savePresets(presets);
+      renderPresets();
+      showToast("マイボタンに登録したよ");
+    });
+
+    // メモ管理
+    function loadMemos() {
+      try {
+        return JSON.parse(localStorage.getItem(MEMO_KEY) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function saveMemos(list) {
+      localStorage.setItem(MEMO_KEY, JSON.stringify(list));
+    }
+
+    function formatDisplayDate(isoDate) {
+      if (!isoDate) return "";
+      const [y, m, d] = isoDate.split("-");
+      const days = ["日", "月", "火", "水", "木", "金", "土"];
+      const dow = days[new Date(Number(y), Number(m) - 1, Number(d)).getDay()];
+      return `${Number(m)}/${Number(d)}(${dow})`;
+    }
+
+    function renderMemos() {
+      const memos = loadMemos();
+      countSpan.textContent = memos.length;
+      if (memos.length === 0) {
+        listArea.innerHTML = '<div style="font-size:0.85rem;color:#636c76;padding:6px 0;">メモはまだないよ</div>';
+        return;
+      }
+      listArea.innerHTML = memos.map(m => `
+        <div class="memo-item">
+          <div>
+            <div class="memo-date">${formatDisplayDate(m.date)} ${escapeHtml(m.start)}〜${escapeHtml(m.end)}</div>
+            <div class="memo-reason">${escapeHtml(m.reason || "（理由なし）")}</div>
+          </div>
+          <div class="item-actions">
+            <button type="button" class="copy-btn" onclick="copyMemo('${m.id}')">コピー</button>
+            <button type="button" class="del-btn" onclick="deleteMemo('${m.id}')">済・消去</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    window.copyMemo = function(id) {
+      const m = loadMemos().find(x => x.id === id);
+      if (!m) return;
+      startSelect.value = m.start;
+      endSelect.value = m.end;
+      reasonInput.value = m.reason;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      showToast("上の入力欄にコピーしたよ");
+    };
+
+    window.deleteMemo = function(id) {
+      const next = loadMemos().filter(x => x.id !== id);
+      saveMemos(next);
+      renderMemos();
+    };
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const memos = loadMemos();
+      memos.unshift({
+        id: "m_" + Date.now(),
+        date: dateInput.value,
+        start: startSelect.value,
+        end: endSelect.value,
+        reason: reasonInput.value.trim()
+      });
+      saveMemos(memos);
+      renderMemos();
+      showToast("保存したよ");
+    });
+
+    // 日付・時刻クイック操作
+    document.getElementById("todayBtn").addEventListener("click", () => {
+      dateInput.value = formatDateOffset(0);
+    });
+    document.getElementById("yesterdayBtn").addEventListener("click", () => {
+      dateInput.value = formatDateOffset(-1);
+    });
+
+    document.querySelectorAll("[data-set-now]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const now = getRoundedNow5();
+        if (btn.dataset.setNow === "start") {
+          startSelect.value = now;
+        } else {
+          endSelect.value = now;
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-quick-start]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        startSelect.value = btn.dataset.quickStart;
+      });
+    });
+
+    document.querySelectorAll("[data-add-min]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const add = Number(btn.dataset.addMin);
+        endSelect.value = addMinutesToTime(startSelect.value, add);
+      });
+    });
+
+    // 初期化
+    initTimeSelects();
+    dateInput.value = formatDateOffset(0);
+    renderPresets();
+    renderMemos();
+  </script>
+</body>
+</html>
