@@ -29,6 +29,21 @@
       justify-content: space-between;
       align-items: center;
     }
+    .header-btn {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .header-btn.active {
+      background: #eef5ff;
+      border-color: #b6d4fe;
+      color: #0a49a6;
+    }
     .card {
       background: var(--card);
       border-radius: 12px;
@@ -49,7 +64,7 @@
       display: block;
       margin-bottom: 4px;
     }
-    input[type="date"], input[type="text"], select {
+    input[type="date"], input[type="text"], input[type="number"], select {
       width: 100%;
       font-size: 1rem;
       padding: 9px 10px;
@@ -69,7 +84,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
     .preset-btn {
       border: 1px solid #b6d4fe;
@@ -105,6 +120,7 @@
     }
     .mini-btns {
       display: flex;
+      flex-wrap: wrap;
       gap: 5px;
       margin-top: 5px;
     }
@@ -155,6 +171,59 @@
       border-radius: 8px;
       cursor: pointer;
       margin-top: 8px;
+    }
+    .settings-box {
+      border: 1px solid #b6d4fe;
+      background: #f8fbff;
+    }
+    .settings-group {
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2ecf8;
+    }
+    .settings-group:last-of-type {
+      border-bottom: none;
+      margin-bottom: 6px;
+      padding-bottom: 0;
+    }
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+    }
+    .tag-remove {
+      background: none;
+      border: none;
+      color: #c92a2a;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0 2px;
+      font-size: 0.85rem;
+    }
+    .add-inline {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .add-inline select, .add-inline input {
+      padding: 6px 8px;
+      font-size: 0.85rem;
+    }
+    .small-add-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
     }
     .memo-item {
       display: flex;
@@ -240,7 +309,50 @@
   </style>
 </head>
 <body>
-  <h1>時間外メモ</h1>
+  <h1>
+    <span>時間外メモ</span>
+    <button type="button" class="header-btn" id="toggleSettingsBtn">設定</button>
+  </h1>
+
+  <!-- ユーザー別設定パネル -->
+  <div class="card settings-box" id="settingsCard" style="display:none;">
+    <div class="section-header">
+      <label style="margin:0;color:#0a49a6;">自分用カスタマイズ（この端末に保存）</label>
+      <button type="button" class="danger-link-btn" id="resetConfigBtn">初期値に戻す</button>
+    </div>
+
+    <div class="settings-group">
+      <label>開いたときの初期時刻</label>
+      <div class="row" style="margin-bottom:0;">
+        <div class="col">
+          <label for="defaultStartSelect" style="font-size:0.75rem;">開始初期値</label>
+          <select id="defaultStartSelect"></select>
+        </div>
+        <div class="col">
+          <label for="defaultEndSelect" style="font-size:0.75rem;">終了初期値</label>
+          <select id="defaultEndSelect"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>開始時刻の下のボタン（時刻をセット）</label>
+      <div class="mini-btns" id="startQuickTags"></div>
+      <div class="add-inline">
+        <select id="newStartQuickSelect"></select>
+        <button type="button" class="small-add-btn" id="addStartQuickBtn">追加</button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label>終了時刻の下のボタン（開始時刻から＋何分）</label>
+      <div class="mini-btns" id="endAddTags"></div>
+      <div class="add-inline">
+        <input type="number" id="newEndAddInput" min="5" max="720" step="5" placeholder="例：45（分）" />
+        <button type="button" class="small-add-btn" id="addEndAddBtn">追加</button>
+      </div>
+    </div>
+  </div>
 
   <!-- マイボタン（定型セット） -->
   <div class="card">
@@ -266,19 +378,12 @@
       <div class="col">
         <label for="startSelect">開始時刻</label>
         <select id="startSelect"></select>
-        <div class="mini-btns">
-          <button type="button" class="mini-btn" data-quick-start="17:15">17:15</button>
-          <button type="button" class="mini-btn" data-set-now="start">今</button>
-        </div>
+        <div class="mini-btns" id="startQuickBtnsArea"></div>
       </div>
       <div class="col">
         <label for="endSelect">終了時刻</label>
         <select id="endSelect"></select>
-        <div class="mini-btns">
-          <button type="button" class="mini-btn" data-set-now="end">今</button>
-          <button type="button" class="mini-btn" data-add-min="15">+15分</button>
-          <button type="button" class="mini-btn" data-add-min="30">+30分</button>
-        </div>
+        <div class="mini-btns" id="endQuickBtnsArea"></div>
       </div>
     </div>
 
@@ -319,8 +424,15 @@
     const MEMO_KEY = "ot_memos_v2";
     const TRASH_KEY = "ot_trash_v2";
     const PRESET_KEY = "ot_presets_v2";
-    const DEFAULT_START = "17:15";
+    const CONFIG_KEY = "ot_config_v1";
     const MAX_TRASH = 50;
+
+    const DEFAULT_CONFIG = {
+      defaultStart: "17:15",
+      defaultEnd: "17:45",
+      startQuickTimes: ["17:15"],
+      endAddMinutes: [15, 30]
+    };
 
     const DEFAULT_PRESETS = [
       { id: "p1", start: "08:10", end: "08:30", reason: "朝の会" }
@@ -339,8 +451,20 @@
     const trashArrow = document.getElementById("trashArrow");
     const toastEl = document.getElementById("toast");
 
+    const settingsCard = document.getElementById("settingsCard");
+    const toggleSettingsBtn = document.getElementById("toggleSettingsBtn");
+    const defaultStartSelect = document.getElementById("defaultStartSelect");
+    const defaultEndSelect = document.getElementById("defaultEndSelect");
+    const startQuickTags = document.getElementById("startQuickTags");
+    const endAddTags = document.getElementById("endAddTags");
+    const newStartQuickSelect = document.getElementById("newStartQuickSelect");
+    const newEndAddInput = document.getElementById("newEndAddInput");
+    const startQuickBtnsArea = document.getElementById("startQuickBtnsArea");
+    const endQuickBtnsArea = document.getElementById("endQuickBtnsArea");
+
     let isEditPreset = false;
     let isTrashOpen = false;
+    let isSettingsOpen = false;
 
     function showToast(msg) {
       toastEl.textContent = msg;
@@ -348,6 +472,34 @@
       setTimeout(() => toastEl.classList.remove("show"), 1800);
     }
 
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[s]));
+    }
+
+    // 設定管理
+    function loadConfig() {
+      try {
+        const raw = localStorage.getItem(CONFIG_KEY);
+        if (!raw) return { ...DEFAULT_CONFIG, startQuickTimes: [...DEFAULT_CONFIG.startQuickTimes], endAddMinutes: [...DEFAULT_CONFIG.endAddMinutes] };
+        const parsed = JSON.parse(raw);
+        return {
+          defaultStart: parsed.defaultStart || DEFAULT_CONFIG.defaultStart,
+          defaultEnd: parsed.defaultEnd || DEFAULT_CONFIG.defaultEnd,
+          startQuickTimes: Array.isArray(parsed.startQuickTimes) ? parsed.startQuickTimes : [...DEFAULT_CONFIG.startQuickTimes],
+          endAddMinutes: Array.isArray(parsed.endAddMinutes) ? parsed.endAddMinutes : [...DEFAULT_CONFIG.endAddMinutes]
+        };
+      } catch {
+        return { ...DEFAULT_CONFIG, startQuickTimes: [...DEFAULT_CONFIG.startQuickTimes], endAddMinutes: [...DEFAULT_CONFIG.endAddMinutes] };
+      }
+    }
+
+    function saveConfig(cfg) {
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+    }
+
+    // 5分刻みの時刻オプション生成（00:00〜23:55）
     function initTimeSelects() {
       const options = [];
       for (let h = 0; h < 24; h++) {
@@ -360,9 +512,158 @@
       const html = options.join("");
       startSelect.innerHTML = html;
       endSelect.innerHTML = html;
-      startSelect.value = DEFAULT_START;
-      endSelect.value = "17:45";
+      defaultStartSelect.innerHTML = html;
+      defaultEndSelect.innerHTML = html;
+      newStartQuickSelect.innerHTML = html;
+
+      const cfg = loadConfig();
+      startSelect.value = cfg.defaultStart;
+      endSelect.value = cfg.defaultEnd;
+      defaultStartSelect.value = cfg.defaultStart;
+      defaultEndSelect.value = cfg.defaultEnd;
+      newStartQuickSelect.value = cfg.defaultStart;
     }
+
+    function renderQuickControls() {
+      const cfg = loadConfig();
+
+      // 開始時刻の下のボタン（常に「今」を最後に配置）
+      startQuickBtnsArea.innerHTML = "";
+      cfg.startQuickTimes.forEach(t => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "mini-btn";
+        b.textContent = t;
+        b.addEventListener("click", () => { startSelect.value = t; });
+        startQuickBtnsArea.appendChild(b);
+      });
+      const nowStartBtn = document.createElement("button");
+      nowStartBtn.type = "button";
+      nowStartBtn.className = "mini-btn";
+      nowStartBtn.textContent = "今";
+      nowStartBtn.addEventListener("click", () => { startSelect.value = getRoundedNow5(); });
+      startQuickBtnsArea.appendChild(nowStartBtn);
+
+      // 終了時刻の下のボタン（常に「今」を最初に配置）
+      endQuickBtnsArea.innerHTML = "";
+      const nowEndBtn = document.createElement("button");
+      nowEndBtn.type = "button";
+      nowEndBtn.className = "mini-btn";
+      nowEndBtn.textContent = "今";
+      nowEndBtn.addEventListener("click", () => { endSelect.value = getRoundedNow5(); });
+      endQuickBtnsArea.appendChild(nowEndBtn);
+
+      cfg.endAddMinutes.forEach(min => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "mini-btn";
+        b.textContent = `+${min}分`;
+        b.addEventListener("click", () => {
+          endSelect.value = addMinutesToTime(startSelect.value, min);
+        });
+        endQuickBtnsArea.appendChild(b);
+      });
+
+      // 設定画面内のタグ一覧
+      startQuickTags.innerHTML = cfg.startQuickTimes.length === 0
+        ? '<span style="font-size:0.78rem;color:#636c76;">なし</span>'
+        : cfg.startQuickTimes.map((t, idx) => `
+            <span class="tag-chip">
+              <span>${escapeHtml(t)}</span>
+              <button type="button" class="tag-remove" onclick="removeStartQuick(${idx})" aria-label="削除">×</button>
+            </span>
+          `).join("");
+
+      endAddTags.innerHTML = cfg.endAddMinutes.length === 0
+        ? '<span style="font-size:0.78rem;color:#636c76;">なし</span>'
+        : cfg.endAddMinutes.map((m, idx) => `
+            <span class="tag-chip">
+              <span>+${escapeHtml(m)}分</span>
+              <button type="button" class="tag-remove" onclick="removeEndAdd(${idx})" aria-label="削除">×</button>
+            </span>
+          `).join("");
+    }
+
+    window.removeStartQuick = function(idx) {
+      const cfg = loadConfig();
+      cfg.startQuickTimes.splice(idx, 1);
+      saveConfig(cfg);
+      renderQuickControls();
+    };
+
+    window.removeEndAdd = function(idx) {
+      const cfg = loadConfig();
+      cfg.endAddMinutes.splice(idx, 1);
+      saveConfig(cfg);
+      renderQuickControls();
+    };
+
+    toggleSettingsBtn.addEventListener("click", () => {
+      isSettingsOpen = !isSettingsOpen;
+      settingsCard.style.display = isSettingsOpen ? "block" : "none";
+      toggleSettingsBtn.classList.toggle("active", isSettingsOpen);
+    });
+
+    defaultStartSelect.addEventListener("change", () => {
+      const cfg = loadConfig();
+      cfg.defaultStart = defaultStartSelect.value;
+      saveConfig(cfg);
+      startSelect.value = cfg.defaultStart;
+      showToast("開始の初期値を更新したよ");
+    });
+
+    defaultEndSelect.addEventListener("change", () => {
+      const cfg = loadConfig();
+      cfg.defaultEnd = defaultEndSelect.value;
+      saveConfig(cfg);
+      endSelect.value = cfg.defaultEnd;
+      showToast("終了の初期値を更新したよ");
+    });
+
+    document.getElementById("addStartQuickBtn").addEventListener("click", () => {
+      const val = newStartQuickSelect.value;
+      const cfg = loadConfig();
+      if (!cfg.startQuickTimes.includes(val)) {
+        cfg.startQuickTimes.push(val);
+        cfg.startQuickTimes.sort();
+        saveConfig(cfg);
+        renderQuickControls();
+        showToast(`${val} ボタンを追加したよ`);
+      }
+    });
+
+    document.getElementById("addEndAddBtn").addEventListener("click", () => {
+      const min = Number(newEndAddInput.value);
+      if (!min || min < 1) {
+        showToast("分数を入力してね");
+        newEndAddInput.focus();
+        return;
+      }
+      const cfg = loadConfig();
+      if (!cfg.endAddMinutes.includes(min)) {
+        cfg.endAddMinutes.push(min);
+        cfg.endAddMinutes.sort((a, b) => a - b);
+        saveConfig(cfg);
+        renderQuickControls();
+        newEndAddInput.value = "";
+        showToast(`+${min}分 ボタンを追加したよ`);
+      }
+    });
+
+    document.getElementById("resetConfigBtn").addEventListener("click", () => {
+      const fresh = {
+        ...DEFAULT_CONFIG,
+        startQuickTimes: [...DEFAULT_CONFIG.startQuickTimes],
+        endAddMinutes: [...DEFAULT_CONFIG.endAddMinutes]
+      };
+      saveConfig(fresh);
+      defaultStartSelect.value = fresh.defaultStart;
+      defaultEndSelect.value = fresh.defaultEnd;
+      startSelect.value = fresh.defaultStart;
+      endSelect.value = fresh.defaultEnd;
+      renderQuickControls();
+      showToast("設定を初期値に戻したよ");
+    });
 
     function formatDateOffset(offsetDays) {
       const d = new Date();
@@ -389,12 +690,6 @@
       const hh = String(Math.floor(total / 60)).padStart(2, "0");
       const mm = String(total % 60).padStart(2, "0");
       return `${hh}:${mm}`;
-    }
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, s => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-      }[s]));
     }
 
     // プリセット管理
@@ -613,7 +908,6 @@
       showToast("保存したよ");
     });
 
-    // 日付・時刻クイック操作
     document.getElementById("todayBtn").addEventListener("click", () => {
       dateInput.value = formatDateOffset(0);
     });
@@ -621,32 +915,9 @@
       dateInput.value = formatDateOffset(-1);
     });
 
-    document.querySelectorAll("[data-set-now]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const now = getRoundedNow5();
-        if (btn.dataset.setNow === "start") {
-          startSelect.value = now;
-        } else {
-          endSelect.value = now;
-        }
-      });
-    });
-
-    document.querySelectorAll("[data-quick-start]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        startSelect.value = btn.dataset.quickStart;
-      });
-    });
-
-    document.querySelectorAll("[data-add-min]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const add = Number(btn.dataset.addMin);
-        endSelect.value = addMinutesToTime(startSelect.value, add);
-      });
-    });
-
     // 初期化
     initTimeSelects();
+    renderQuickControls();
     dateInput.value = formatDateOffset(0);
     renderPresets();
     renderMemos();
