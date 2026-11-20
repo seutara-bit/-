@@ -125,6 +125,14 @@
       cursor: pointer;
       padding: 2px 4px;
     }
+    .danger-link-btn {
+      background: none;
+      border: none;
+      color: #c92a2a;
+      font-size: 0.78rem;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
     .primary-btn {
       width: 100%;
       padding: 12px;
@@ -159,6 +167,10 @@
     .memo-item:last-child { border-bottom: none; }
     .memo-date { font-size: 0.8rem; color: var(--sub); font-weight: 600; }
     .memo-reason { font-size: 0.95rem; margin-top: 2px; word-break: break-all; }
+    .trash-item .memo-date,
+    .trash-item .memo-reason {
+      color: #8c959f;
+    }
     .item-actions {
       display: flex;
       gap: 5px;
@@ -173,6 +185,15 @@
       font-size: 0.78rem;
       cursor: pointer;
     }
+    .restore-btn {
+      background: #ebfbee;
+      color: #2b8a3e;
+      border: 1px solid #b2f2bb;
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
     .del-btn {
       background: #fff0f0;
       color: #c92a2a;
@@ -181,6 +202,24 @@
       padding: 6px 9px;
       font-size: 0.78rem;
       cursor: pointer;
+    }
+    .trash-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0;
+      cursor: pointer;
+      color: var(--sub);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .trash-body {
+      margin-top: 10px;
+      border-top: 1px solid #eee;
+      padding-top: 6px;
     }
     .toast {
       position: fixed;
@@ -252,7 +291,7 @@
     <button type="button" class="sub-save-btn" id="addPresetBtn">＋ この時刻と理由を「マイボタン」に登録</button>
   </div>
 
-  <!-- 一覧 -->
+  <!-- 未入力メモ一覧 -->
   <div class="card">
     <div class="section-header">
       <label style="margin:0;">未入力メモ（<span id="countSpan">0</span>件）</label>
@@ -260,12 +299,28 @@
     <div id="listArea"></div>
   </div>
 
+  <!-- ゴミ箱（済にした履歴） -->
+  <div class="card">
+    <button type="button" class="trash-toggle" id="toggleTrashBtn">
+      <span>ゴミ箱・済履歴（<span id="trashCountSpan">0</span>件）</span>
+      <span id="trashArrow">▼ 開く</span>
+    </button>
+    <div class="trash-body" id="trashBody" style="display:none;">
+      <div style="text-align:right;margin-bottom:4px;">
+        <button type="button" class="danger-link-btn" id="emptyTrashBtn">ゴミ箱を空にする</button>
+      </div>
+      <div id="trashListArea"></div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
     const MEMO_KEY = "ot_memos_v2";
+    const TRASH_KEY = "ot_trash_v2";
     const PRESET_KEY = "ot_presets_v2";
     const DEFAULT_START = "17:15";
+    const MAX_TRASH = 50;
 
     const DEFAULT_PRESETS = [
       { id: "p1", start: "08:10", end: "08:30", reason: "朝の会" }
@@ -278,9 +333,14 @@
     const presetArea = document.getElementById("presetArea");
     const listArea = document.getElementById("listArea");
     const countSpan = document.getElementById("countSpan");
+    const trashListArea = document.getElementById("trashListArea");
+    const trashCountSpan = document.getElementById("trashCountSpan");
+    const trashBody = document.getElementById("trashBody");
+    const trashArrow = document.getElementById("trashArrow");
     const toastEl = document.getElementById("toast");
 
     let isEditPreset = false;
+    let isTrashOpen = false;
 
     function showToast(msg) {
       toastEl.textContent = msg;
@@ -288,7 +348,6 @@
       setTimeout(() => toastEl.classList.remove("show"), 1800);
     }
 
-    // 5分刻みの時刻オプション生成（00:00〜23:55）
     function initTimeSelects() {
       const options = [];
       for (let h = 0; h < 24; h++) {
@@ -409,7 +468,7 @@
       showToast("マイボタンに登録したよ");
     });
 
-    // メモ管理
+    // メモ＆ゴミ箱管理
     function loadMemos() {
       try {
         return JSON.parse(localStorage.getItem(MEMO_KEY) || "[]");
@@ -420,6 +479,18 @@
 
     function saveMemos(list) {
       localStorage.setItem(MEMO_KEY, JSON.stringify(list));
+    }
+
+    function loadTrash() {
+      try {
+        return JSON.parse(localStorage.getItem(TRASH_KEY) || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function saveTrash(list) {
+      localStorage.setItem(TRASH_KEY, JSON.stringify(list.slice(0, MAX_TRASH)));
     }
 
     function formatDisplayDate(isoDate) {
@@ -435,24 +506,48 @@
       countSpan.textContent = memos.length;
       if (memos.length === 0) {
         listArea.innerHTML = '<div style="font-size:0.85rem;color:#636c76;padding:6px 0;">メモはまだないよ</div>';
+      } else {
+        listArea.innerHTML = memos.map(m => `
+          <div class="memo-item">
+            <div>
+              <div class="memo-date">${formatDisplayDate(m.date)} ${escapeHtml(m.start)}〜${escapeHtml(m.end)}</div>
+              <div class="memo-reason">${escapeHtml(m.reason || "（理由なし）")}</div>
+            </div>
+            <div class="item-actions">
+              <button type="button" class="copy-btn" onclick="copyMemo('${m.id}', 'memo')">コピー</button>
+              <button type="button" class="del-btn" onclick="moveToTrash('${m.id}')">済・消去</button>
+            </div>
+          </div>
+        `).join("");
+      }
+      renderTrash();
+    }
+
+    function renderTrash() {
+      const trash = loadTrash();
+      trashCountSpan.textContent = trash.length;
+      if (trash.length === 0) {
+        trashListArea.innerHTML = '<div style="font-size:0.82rem;color:#636c76;padding:6px 0;">ゴミ箱は空だよ</div>';
         return;
       }
-      listArea.innerHTML = memos.map(m => `
-        <div class="memo-item">
+      trashListArea.innerHTML = trash.map(m => `
+        <div class="memo-item trash-item">
           <div>
             <div class="memo-date">${formatDisplayDate(m.date)} ${escapeHtml(m.start)}〜${escapeHtml(m.end)}</div>
             <div class="memo-reason">${escapeHtml(m.reason || "（理由なし）")}</div>
           </div>
           <div class="item-actions">
-            <button type="button" class="copy-btn" onclick="copyMemo('${m.id}')">コピー</button>
-            <button type="button" class="del-btn" onclick="deleteMemo('${m.id}')">済・消去</button>
+            <button type="button" class="copy-btn" onclick="copyMemo('${m.id}', 'trash')">コピー</button>
+            <button type="button" class="restore-btn" onclick="restoreMemo('${m.id}')">戻す</button>
+            <button type="button" class="del-btn" onclick="removeForever('${m.id}')">削除</button>
           </div>
         </div>
       `).join("");
     }
 
-    window.copyMemo = function(id) {
-      const m = loadMemos().find(x => x.id === id);
+    window.copyMemo = function(id, source) {
+      const list = source === "trash" ? loadTrash() : loadMemos();
+      const m = list.find(x => x.id === id);
       if (!m) return;
       startSelect.value = m.start;
       endSelect.value = m.end;
@@ -461,11 +556,48 @@
       showToast("上の入力欄にコピーしたよ");
     };
 
-    window.deleteMemo = function(id) {
-      const next = loadMemos().filter(x => x.id !== id);
-      saveMemos(next);
+    window.moveToTrash = function(id) {
+      const memos = loadMemos();
+      const target = memos.find(x => x.id === id);
+      if (!target) return;
+      saveMemos(memos.filter(x => x.id !== id));
+      const trash = loadTrash();
+      trash.unshift(target);
+      saveTrash(trash);
       renderMemos();
+      showToast("ゴミ箱へ移動したよ");
     };
+
+    window.restoreMemo = function(id) {
+      const trash = loadTrash();
+      const target = trash.find(x => x.id === id);
+      if (!target) return;
+      saveTrash(trash.filter(x => x.id !== id));
+      const memos = loadMemos();
+      memos.unshift(target);
+      saveMemos(memos);
+      renderMemos();
+      showToast("未入力メモに戻したよ");
+    };
+
+    window.removeForever = function(id) {
+      const next = loadTrash().filter(x => x.id !== id);
+      saveTrash(next);
+      renderTrash();
+    };
+
+    document.getElementById("emptyTrashBtn").addEventListener("click", () => {
+      if (loadTrash().length === 0) return;
+      saveTrash([]);
+      renderTrash();
+      showToast("ゴミ箱を空にしたよ");
+    });
+
+    document.getElementById("toggleTrashBtn").addEventListener("click", () => {
+      isTrashOpen = !isTrashOpen;
+      trashBody.style.display = isTrashOpen ? "block" : "none";
+      trashArrow.textContent = isTrashOpen ? "▲ 閉じる" : "▼ 開く";
+    });
 
     document.getElementById("saveBtn").addEventListener("click", () => {
       const memos = loadMemos();
