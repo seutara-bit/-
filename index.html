@@ -599,35 +599,45 @@
       color: var(--ok);
       border-color: var(--ok-border);
     }
-    .epoc-row {
-      width: 100%;
-      min-height: 52px;
-      padding: 10px 12px;
+    .epoc-item-card {
       margin-bottom: 7px;
       border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--card);
+      overflow: hidden;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .epoc-item-card:last-child {
+      margin-bottom: 0;
+    }
+    .epoc-item-card.checked {
+      background: var(--ok-bg);
+      border-color: var(--ok-border);
+    }
+    .epoc-item-main {
+      display: flex;
+      align-items: stretch;
+      min-height: 52px;
+    }
+    .epoc-toggle-area {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      background: transparent;
       color: var(--text);
+      padding: 10px 8px 10px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       text-align: left;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
       -webkit-tap-highlight-color: transparent;
-    }
-    .epoc-row:last-child {
-      margin-bottom: 0;
-    }
-    .epoc-row.checked {
-      background: var(--ok-bg);
-      border-color: var(--ok-border);
     }
     .epoc-row-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
       flex: 1;
       min-width: 0;
     }
@@ -635,8 +645,12 @@
       font-size: 0.78rem;
       font-weight: 700;
       color: var(--sub);
-      min-width: 24px;
+      min-width: 22px;
       flex-shrink: 0;
+    }
+    .epoc-text-block {
+      flex: 1;
+      min-width: 0;
     }
     .epoc-label {
       font-size: 0.94rem;
@@ -644,36 +658,95 @@
       line-height: 1.35;
       word-break: break-word;
     }
-    .epoc-row.checked .epoc-label {
+    .epoc-item-card.checked .epoc-label {
       color: var(--ok);
     }
+    .epoc-note-preview {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--primary-text);
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      border-radius: 6px;
+      padding: 2px 7px;
+      line-height: 1.3;
+      word-break: break-all;
+    }
     .epoc-status-box {
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       border-radius: 8px;
       border: 2px solid var(--border);
       background: var(--mini-bg);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 800;
       color: transparent;
       flex-shrink: 0;
     }
-    .epoc-row.checked .epoc-status-box {
+    .epoc-item-card.checked .epoc-status-box {
       background: var(--ok);
       border-color: var(--ok);
       color: #fff;
     }
-    .epoc-status-text {
-      font-size: 0.74rem;
+    .epoc-note-btn {
+      border: none;
+      border-left: 1px solid var(--border);
+      background: transparent;
+      color: var(--sub);
+      padding: 0 11px;
+      font-size: 0.76rem;
       font-weight: 700;
-      color: var(--muted);
+      cursor: pointer;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .epoc-item-card.checked .epoc-note-btn {
+      border-left-color: var(--ok-border);
+    }
+    .epoc-note-btn.has-note {
+      color: var(--primary);
+    }
+    .epoc-note-editor {
+      padding: 8px 10px 10px;
+      border-top: 1px dashed var(--border);
+      background: rgba(127, 127, 127, 0.04);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .epoc-note-editor input {
+      padding: 7px 9px;
+      font-size: 0.88rem;
+      flex: 1;
+    }
+    .epoc-note-clear {
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--mini-bg);
+      color: var(--sub);
+      font-weight: 700;
+      cursor: pointer;
       flex-shrink: 0;
     }
-    .epoc-row.checked .epoc-status-text {
-      color: var(--ok);
+    .epoc-note-done {
+      padding: 7px 11px;
+      border-radius: 7px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
     }
 
     .toast {
@@ -887,6 +960,7 @@
     const PRESET_KEY = "ot_presets_v2";
     const CONFIG_KEY = "ot_config_v2";
     const EPOC_KEY = "ot_epoc_v1";
+    const EPOC_NOTES_KEY = "ot_epoc_notes_v1";
     const MAX_TRASH = 50;
 
     const EPOC_DATA = [
@@ -1031,6 +1105,7 @@
 
     let activePage = "overtime";
     let epocFilter = "all";
+    let editingEpocKey = null;
     let isEditPreset = false;
     let isTrashOpen = false;
     let isSettingsOpen = false;
@@ -1074,6 +1149,19 @@
       localStorage.setItem(EPOC_KEY, JSON.stringify(map));
     }
 
+    function loadEpocNotes() {
+      try {
+        const raw = localStorage.getItem(EPOC_NOTES_KEY);
+        return raw && typeof JSON.parse(raw) === "object" ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveEpocNotes(notes) {
+      localStorage.setItem(EPOC_NOTES_KEY, JSON.stringify(notes));
+    }
+
     function makeEpocKey(catId, index) {
       return `${catId}_${index}`;
     }
@@ -1086,8 +1174,46 @@
       renderEpoc();
     };
 
+    window.toggleEpocNoteEditor = function(catId, index) {
+      const key = makeEpocKey(catId, index);
+      editingEpocKey = editingEpocKey === key ? null : key;
+      renderEpoc();
+      if (editingEpocKey) {
+        const inputEl = document.getElementById(`note_input_${key}`);
+        if (inputEl) inputEl.focus();
+      }
+    };
+
+    window.updateEpocNote = function(catId, index, value) {
+      const key = makeEpocKey(catId, index);
+      const notes = loadEpocNotes();
+      const trimmed = value.trim();
+      if (trimmed) {
+        notes[key] = trimmed;
+      } else {
+        delete notes[key];
+      }
+      saveEpocNotes(notes);
+    };
+
+    window.clearEpocNote = function(catId, index) {
+      const key = makeEpocKey(catId, index);
+      const notes = loadEpocNotes();
+      delete notes[key];
+      saveEpocNotes(notes);
+      renderEpoc();
+      const inputEl = document.getElementById(`note_input_${key}`);
+      if (inputEl) inputEl.focus();
+    };
+
+    window.closeEpocNoteEditor = function() {
+      editingEpocKey = null;
+      renderEpoc();
+    };
+
     function renderEpoc() {
       const map = loadEpocMap();
+      const notes = loadEpocNotes();
       const counts = {};
       let totalDone = 0;
       let totalAll = 0;
@@ -1115,7 +1241,16 @@
       const sectionsHtml = EPOC_DATA.map(cat => {
         const { done, total } = counts[cat.id];
         const filteredRows = cat.items
-          .map((label, idx) => ({ label, idx, checked: Boolean(map[makeEpocKey(cat.id, idx)]) }))
+          .map((label, idx) => {
+            const key = makeEpocKey(cat.id, idx);
+            return {
+              label,
+              idx,
+              key,
+              checked: Boolean(map[key]),
+              note: notes[key] || ""
+            };
+          })
           .filter(row => {
             if (epocFilter === "achieved") return row.checked;
             if (epocFilter === "unachieved") return !row.checked;
@@ -1124,21 +1259,50 @@
 
         const rowsHtml = filteredRows.length === 0
           ? `<div class="empty-msg">該当する項目はないよ</div>`
-          : filteredRows.map(row => `
-              <button
-                type="button"
-                class="epoc-row ${row.checked ? "checked" : ""}"
-                onclick="toggleEpocItem('${cat.id}', ${row.idx})"
-                aria-pressed="${row.checked}"
-              >
-                <span class="epoc-row-left">
-                  <span class="epoc-num">${row.idx + 1}</span>
-                  <span class="epoc-label">${escapeHtml(row.label)}</span>
-                </span>
-                <span class="epoc-status-text">${row.checked ? "達成" : "未達成"}</span>
-                <span class="epoc-status-box">${row.checked ? "✓" : ""}</span>
-              </button>
-            `).join("");
+          : filteredRows.map(row => {
+              const isEditing = editingEpocKey === row.key;
+              return `
+                <div class="epoc-item-card ${row.checked ? "checked" : ""}">
+                  <div class="epoc-item-main">
+                    <button
+                      type="button"
+                      class="epoc-toggle-area"
+                      onclick="toggleEpocItem('${cat.id}', ${row.idx})"
+                      aria-pressed="${row.checked}"
+                    >
+                      <span class="epoc-row-left">
+                        <span class="epoc-num">${row.idx + 1}</span>
+                        <span class="epoc-text-block">
+                          <div class="epoc-label">${escapeHtml(row.label)}</div>
+                          ${row.note ? `<span class="epoc-note-preview">${escapeHtml(row.note)}</span>` : ""}
+                        </span>
+                      </span>
+                      <span class="epoc-status-box">${row.checked ? "✓" : ""}</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="epoc-note-btn ${row.note ? "has-note" : ""}"
+                      onclick="toggleEpocNoteEditor('${cat.id}', ${row.idx})"
+                      aria-label="メモを編集"
+                    >メモ</button>
+                  </div>
+                  ${isEditing ? `
+                    <div class="epoc-note-editor">
+                      <input
+                        type="text"
+                        id="note_input_${row.key}"
+                        value="${escapeHtml(row.note)}"
+                        placeholder="例：内科で達成する、救急で経験"
+                        oninput="updateEpocNote('${cat.id}', ${row.idx}, this.value)"
+                        onkeydown="if(event.key==='Enter'){closeEpocNoteEditor();}"
+                      />
+                      <button type="button" class="epoc-note-clear" onclick="clearEpocNote('${cat.id}', ${row.idx})" title="メモを消去">×</button>
+                      <button type="button" class="epoc-note-done" onclick="closeEpocNoteEditor()">完了</button>
+                    </div>
+                  ` : ""}
+                </div>
+              `;
+            }).join("");
 
         return `
           <div class="card">
@@ -1420,13 +1584,14 @@
     function buildBackupPayload() {
       return {
         app: "overtime-memo-epoc",
-        version: 2,
+        version: 3,
         exportedAt: new Date().toISOString(),
         memos: loadMemos(),
         trash: loadTrash(),
         presets: loadPresets(),
         config: loadConfig(),
-        epoc: loadEpocMap()
+        epoc: loadEpocMap(),
+        epocNotes: loadEpocNotes()
       };
     }
 
@@ -1442,6 +1607,9 @@
       }
       if (data.epoc && typeof data.epoc === "object") {
         saveEpocMap(data.epoc);
+      }
+      if (data.epocNotes && typeof data.epocNotes === "object") {
+        saveEpocNotes(data.epocNotes);
       }
 
       const nextCfg = loadConfig();
