@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>時間外メモ</title>
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%231d6feb'/%3E%3Ccircle cx='90' cy='92' r='46' fill='none' stroke='%23ffffff' stroke-width='10'/%3E%3Cpath d='M90 64v28l20 14' fill='none' stroke='%23ffffff' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='132' cy='48' r='16' fill='%23ffffff'/%3E%3Cpath d='M126 48h12M132 42v12' stroke='%231d6feb' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <title>時間外メモ & EPOC項目</title>
+  <link rel="apple-touch-icon" href="icon.png" />
   <style>
     :root {
       --primary: #1d6feb;
@@ -139,22 +139,44 @@
       color: var(--text);
       transition: background 0.2s, color 0.2s;
     }
-    h1 {
-      font-size: 1.15rem;
-      margin: 4px 0 12px;
+    .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin: 4px 0 10px;
+      gap: 8px;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+    .nav-tab {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--sub);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .nav-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
     }
     .header-btn {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 0.82rem;
-      font-weight: 600;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
       color: var(--text);
       cursor: pointer;
+      flex-shrink: 0;
     }
     .header-btn.active {
       background: var(--primary-soft);
@@ -205,22 +227,19 @@
       flex: 1;
     }
     .clear-x-btn {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--mini-bg);
       color: var(--sub);
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       cursor: pointer;
       flex-shrink: 0;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-    }
-    .clear-x-btn:active {
-      transform: scale(0.96);
     }
     .row {
       display: flex;
@@ -240,7 +259,7 @@
       background: var(--primary-soft);
       color: var(--primary-text);
       border-radius: 8px;
-      padding: 7px 10px;
+      padding: 8px 11px;
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
@@ -249,7 +268,6 @@
       gap: 6px;
       text-align: left;
     }
-    .preset-btn:active { transform: scale(0.98); }
     .preset-time {
       font-size: 0.75rem;
       font-weight: normal;
@@ -277,8 +295,8 @@
       border: 1px solid var(--border);
       background: var(--mini-bg);
       border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 0.75rem;
+      padding: 5px 9px;
+      font-size: 0.76rem;
       cursor: pointer;
       color: var(--text);
     }
@@ -312,7 +330,7 @@
     }
     .sub-save-btn {
       width: 100%;
-      padding: 8px;
+      padding: 9px;
       font-size: 0.82rem;
       background: var(--sub-btn-bg);
       color: var(--text);
@@ -483,8 +501,181 @@
     .empty-msg {
       font-size: 0.82rem;
       color: var(--sub);
-      padding: 4px 0;
+      padding: 6px 0;
     }
+
+    /* EPOCスタイル */
+    .epoc-summary-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .epoc-total-num {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: var(--mini-bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 999px;
+      transition: width 0.2s ease;
+    }
+    .cat-pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .cat-pill {
+      background: var(--mini-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 6px;
+      text-align: center;
+    }
+    .cat-pill-name {
+      font-size: 0.72rem;
+      color: var(--sub);
+      font-weight: 600;
+    }
+    .cat-pill-val {
+      font-size: 0.88rem;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+    .filter-row {
+      display: flex;
+      gap: 6px;
+    }
+    .filter-btn {
+      flex: 1;
+      padding: 8px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--mini-bg);
+      color: var(--sub);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .filter-btn.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-text);
+    }
+    .epoc-section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .epoc-section-heading {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .epoc-section-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--mini-bg);
+      color: var(--sub);
+      border: 1px solid var(--border);
+    }
+    .epoc-section-badge.done {
+      background: var(--ok-bg);
+      color: var(--ok);
+      border-color: var(--ok-border);
+    }
+    .epoc-row {
+      width: 100%;
+      min-height: 52px;
+      padding: 10px 12px;
+      margin-bottom: 7px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .epoc-row:last-child {
+      margin-bottom: 0;
+    }
+    .epoc-row.checked {
+      background: var(--ok-bg);
+      border-color: var(--ok-border);
+    }
+    .epoc-row-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .epoc-num {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--sub);
+      min-width: 24px;
+      flex-shrink: 0;
+    }
+    .epoc-label {
+      font-size: 0.94rem;
+      font-weight: 600;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    .epoc-row.checked .epoc-label {
+      color: var(--ok);
+    }
+    .epoc-status-box {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      background: var(--mini-bg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: transparent;
+      flex-shrink: 0;
+    }
+    .epoc-row.checked .epoc-status-box {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: #fff;
+    }
+    .epoc-status-text {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .epoc-row.checked .epoc-status-text {
+      color: var(--ok);
+    }
+
     .toast {
       position: fixed;
       bottom: 20px;
@@ -504,12 +695,15 @@
   </style>
 </head>
 <body>
-  <h1>
-    <span>時間外メモ</span>
+  <div class="top-bar">
+    <div class="nav-tabs">
+      <button type="button" class="nav-tab active" id="tabOvertimeBtn">時間外メモ</button>
+      <button type="button" class="nav-tab" id="tabEpocBtn">EPOC項目</button>
+    </div>
     <button type="button" class="header-btn" id="toggleSettingsBtn">設定</button>
-  </h1>
+  </div>
 
-  <!-- ユーザー別設定パネル -->
+  <!-- ユーザー別設定パネル（共通） -->
   <div class="card settings-box" id="settingsCard" style="display:none;">
     <div class="section-header">
       <label style="margin:0;color:var(--primary-text);">自分用カスタマイズ（この端末に保存）</label>
@@ -585,71 +779,104 @@
     </div>
   </div>
 
-  <!-- マイボタン（定型セット） -->
-  <div class="card">
-    <div class="section-header">
-      <label style="margin:0;">マイボタン（タップで入力）</label>
-      <button type="button" class="text-link-btn" id="toggleEditPreset">整理</button>
+  <!-- ページ1：時間外メモ -->
+  <div id="overtimePage">
+    <div class="card">
+      <div class="section-header">
+        <label style="margin:0;">マイボタン（タップで入力）</label>
+        <button type="button" class="text-link-btn" id="toggleEditPreset">整理</button>
+      </div>
+      <div class="preset-grid" id="presetArea"></div>
     </div>
-    <div class="preset-grid" id="presetArea"></div>
+
+    <div class="card">
+      <div style="margin-bottom:10px;">
+        <label for="dateInput">日付</label>
+        <div class="row" style="margin-bottom:0;">
+          <div class="col"><input type="date" id="dateInput" /></div>
+          <button type="button" class="mini-btn" id="yesterdayBtn" style="padding:9px 10px;">昨日</button>
+          <button type="button" class="mini-btn" id="todayBtn" style="padding:9px 10px;">今日</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label for="startSelect">開始時刻</label>
+          <select id="startSelect"></select>
+          <div class="mini-btns" id="startQuickBtnsArea"></div>
+        </div>
+        <div class="col">
+          <label for="endSelect">終了時刻</label>
+          <select id="endSelect"></select>
+          <div class="mini-btns" id="endQuickBtnsArea"></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <label for="reasonInput">理由</label>
+        <div class="reason-wrap">
+          <input type="text" id="reasonInput" placeholder="例：朝の会、急患対応、カルテ記載" />
+          <button type="button" class="clear-x-btn" id="clearReasonBtn" aria-label="理由をクリア" title="クリア">×</button>
+        </div>
+      </div>
+
+      <button type="button" class="primary-btn" id="saveBtn">メモを保存</button>
+      <button type="button" class="sub-save-btn" id="addPresetBtn">＋ この時刻と理由を「マイボタン」に登録</button>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <label style="margin:0;">未入力メモ（<span id="countSpan">0</span>件）</label>
+      </div>
+      <div id="listArea"></div>
+    </div>
+
+    <div class="card">
+      <button type="button" class="trash-toggle" id="toggleTrashBtn">
+        <span>ゴミ箱・済履歴（<span id="trashCountSpan">0</span>件）</span>
+        <span id="trashArrow">▼ 開く</span>
+      </button>
+      <div class="trash-body" id="trashBody" style="display:none;">
+        <div style="text-align:right;margin-bottom:4px;">
+          <button type="button" class="danger-link-btn" id="emptyTrashBtn">ゴミ箱を空にする</button>
+        </div>
+        <div id="trashListArea"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- 入力フォーム -->
-  <div class="card">
-    <div style="margin-bottom:10px;">
-      <label for="dateInput">日付</label>
-      <div class="row" style="margin-bottom:0;">
-        <div class="col"><input type="date" id="dateInput" /></div>
-        <button type="button" class="mini-btn" id="yesterdayBtn" style="padding:9px 10px;">昨日</button>
-        <button type="button" class="mini-btn" id="todayBtn" style="padding:9px 10px;">今日</button>
+  <!-- ページ2：EPOC項目 -->
+  <div id="epocPage" style="display:none;">
+    <div class="card">
+      <div class="epoc-summary-top">
+        <span style="font-size:0.9rem;font-weight:700;">達成状況</span>
+        <span class="epoc-total-num" id="epocTotalText">0 / 62</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="epocProgressBar" style="width:0%;"></div>
+      </div>
+      <div class="cat-pills">
+        <div class="cat-pill">
+          <div class="cat-pill-name">症候</div>
+          <div class="cat-pill-val" id="epocSymText">0 / 29</div>
+        </div>
+        <div class="cat-pill">
+          <div class="cat-pill-name">疾病・病態</div>
+          <div class="cat-pill-val" id="epocDisText">0 / 26</div>
+        </div>
+        <div class="cat-pill">
+          <div class="cat-pill-name">必須研修等</div>
+          <div class="cat-pill-val" id="epocTraText">0 / 7</div>
+        </div>
+      </div>
+      <div class="filter-row">
+        <button type="button" class="filter-btn active" data-epoc-filter="all">すべて</button>
+        <button type="button" class="filter-btn" data-epoc-filter="unachieved">未達成</button>
+        <button type="button" class="filter-btn" data-epoc-filter="achieved">達成</button>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col">
-        <label for="startSelect">開始時刻</label>
-        <select id="startSelect"></select>
-        <div class="mini-btns" id="startQuickBtnsArea"></div>
-      </div>
-      <div class="col">
-        <label for="endSelect">終了時刻</label>
-        <select id="endSelect"></select>
-        <div class="mini-btns" id="endQuickBtnsArea"></div>
-      </div>
-    </div>
-
-    <div style="margin-bottom:10px;">
-      <label for="reasonInput">理由</label>
-      <div class="reason-wrap">
-        <input type="text" id="reasonInput" placeholder="例：朝の会、急患対応、カルテ記載" />
-        <button type="button" class="clear-x-btn" id="clearReasonBtn" aria-label="理由をクリア" title="クリア">×</button>
-      </div>
-    </div>
-
-    <button type="button" class="primary-btn" id="saveBtn">メモを保存</button>
-    <button type="button" class="sub-save-btn" id="addPresetBtn">＋ この時刻と理由を「マイボタン」に登録</button>
-  </div>
-
-  <!-- 未入力メモ一覧 -->
-  <div class="card">
-    <div class="section-header">
-      <label style="margin:0;">未入力メモ（<span id="countSpan">0</span>件）</label>
-    </div>
-    <div id="listArea"></div>
-  </div>
-
-  <!-- ゴミ箱（済にした履歴） -->
-  <div class="card">
-    <button type="button" class="trash-toggle" id="toggleTrashBtn">
-      <span>ゴミ箱・済履歴（<span id="trashCountSpan">0</span>件）</span>
-      <span id="trashArrow">▼ 開く</span>
-    </button>
-    <div class="trash-body" id="trashBody" style="display:none;">
-      <div style="text-align:right;margin-bottom:4px;">
-        <button type="button" class="danger-link-btn" id="emptyTrashBtn">ゴミ箱を空にする</button>
-      </div>
-      <div id="trashListArea"></div>
-    </div>
+    <div id="epocSectionsContainer"></div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -659,7 +886,91 @@
     const TRASH_KEY = "ot_trash_v2";
     const PRESET_KEY = "ot_presets_v2";
     const CONFIG_KEY = "ot_config_v2";
+    const EPOC_KEY = "ot_epoc_v1";
     const MAX_TRASH = 50;
+
+    const EPOC_DATA = [
+      {
+        id: "symptoms",
+        title: "経験すべき症候",
+        items: [
+          "ショック",
+          "体重減少・るい痩",
+          "発疹",
+          "黄疸",
+          "発熱",
+          "もの忘れ",
+          "頭痛",
+          "めまい",
+          "意識障害・失神",
+          "けいれん発作",
+          "視力障害",
+          "胸痛",
+          "心停止",
+          "呼吸困難",
+          "吐血・喀血",
+          "下血・血便",
+          "嘔気・嘔吐",
+          "腹痛",
+          "便通異常（下痢・便秘）",
+          "熱傷・外傷",
+          "腰・背部痛",
+          "関節痛",
+          "運動麻痺・筋力低下",
+          "排尿障害（尿失禁・排尿困難）",
+          "興奮・せん妄",
+          "抑うつ",
+          "成長・発達の障害",
+          "妊娠・出産",
+          "終末期の症候"
+        ]
+      },
+      {
+        id: "diseases",
+        title: "経験すべき疾病・病態",
+        items: [
+          "脳血管障害",
+          "認知症",
+          "急性冠症候群",
+          "心不全",
+          "大動脈瘤",
+          "高血圧",
+          "肺癌",
+          "肺炎",
+          "急性上気道炎",
+          "気管支喘息",
+          "慢性閉塞性肺疾患（COPD）",
+          "急性胃腸炎",
+          "胃癌",
+          "消化性潰瘍",
+          "肝炎・肝硬変",
+          "胆石症",
+          "大腸癌",
+          "腎盂腎炎",
+          "尿路結石",
+          "腎不全",
+          "高エネルギー外傷・骨折",
+          "糖尿病",
+          "脂質異常症",
+          "うつ病",
+          "統合失調症",
+          "依存症（ニコチン・アルコール・薬物・病的賭博）"
+        ]
+      },
+      {
+        id: "training",
+        title: "診療において必須の研修・講習・伝達講習",
+        items: [
+          "感染対策",
+          "予防医療（予防接種を含む）",
+          "虐待",
+          "社会復帰支援",
+          "緩和ケア",
+          "ACP（アドバンス・ケア・プラニング）（終末期意思決定プロセス）",
+          "CPC（臨床病理検討会）"
+        ]
+      }
+    ];
 
     const DEFAULT_CONFIG = {
       theme: "light",
@@ -676,6 +987,11 @@
     const DEFAULT_PRESETS = [
       { id: "p1", start: "08:10", end: "08:30", reason: "朝の会" }
     ];
+
+    const tabOvertimeBtn = document.getElementById("tabOvertimeBtn");
+    const tabEpocBtn = document.getElementById("tabEpocBtn");
+    const overtimePage = document.getElementById("overtimePage");
+    const epocPage = document.getElementById("epocPage");
 
     const dateInput = document.getElementById("dateInput");
     const startSelect = document.getElementById("startSelect");
@@ -706,6 +1022,15 @@
     const backupArea = document.getElementById("backupArea");
     const importFileInput = document.getElementById("importFileInput");
 
+    const epocSectionsContainer = document.getElementById("epocSectionsContainer");
+    const epocTotalText = document.getElementById("epocTotalText");
+    const epocProgressBar = document.getElementById("epocProgressBar");
+    const epocSymText = document.getElementById("epocSymText");
+    const epocDisText = document.getElementById("epocDisText");
+    const epocTraText = document.getElementById("epocTraText");
+
+    let activePage = "overtime";
+    let epocFilter = "all";
     let isEditPreset = false;
     let isTrashOpen = false;
     let isSettingsOpen = false;
@@ -722,6 +1047,124 @@
       }[s]));
     }
 
+    function switchPage(pageName) {
+      activePage = pageName;
+      const isEpoc = pageName === "epoc";
+      overtimePage.style.display = isEpoc ? "none" : "block";
+      epocPage.style.display = isEpoc ? "block" : "none";
+      tabOvertimeBtn.classList.toggle("active", !isEpoc);
+      tabEpocBtn.classList.toggle("active", isEpoc);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    tabOvertimeBtn.addEventListener("click", () => switchPage("overtime"));
+    tabEpocBtn.addEventListener("click", () => switchPage("epoc"));
+
+    // EPOCデータ管理
+    function loadEpocMap() {
+      try {
+        const raw = localStorage.getItem(EPOC_KEY);
+        return raw && typeof JSON.parse(raw) === "object" ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveEpocMap(map) {
+      localStorage.setItem(EPOC_KEY, JSON.stringify(map));
+    }
+
+    function makeEpocKey(catId, index) {
+      return `${catId}_${index}`;
+    }
+
+    window.toggleEpocItem = function(catId, index) {
+      const key = makeEpocKey(catId, index);
+      const map = loadEpocMap();
+      map[key] = !map[key];
+      saveEpocMap(map);
+      renderEpoc();
+    };
+
+    function renderEpoc() {
+      const map = loadEpocMap();
+      const counts = {};
+      let totalDone = 0;
+      let totalAll = 0;
+
+      EPOC_DATA.forEach(cat => {
+        let done = 0;
+        cat.items.forEach((_, idx) => {
+          totalAll += 1;
+          if (map[makeEpocKey(cat.id, idx)]) {
+            done += 1;
+            totalDone += 1;
+          }
+        });
+        counts[cat.id] = { done, total: cat.items.length };
+      });
+
+      const pct = totalAll > 0 ? Math.round((totalDone / totalAll) * 100) : 0;
+      epocTotalText.textContent = `${totalDone} / ${totalAll}（${pct}%）`;
+      epocProgressBar.style.width = `${pct}%`;
+
+      epocSymText.textContent = `${counts.symptoms.done} / ${counts.symptoms.total}`;
+      epocDisText.textContent = `${counts.diseases.done} / ${counts.diseases.total}`;
+      epocTraText.textContent = `${counts.training.done} / ${counts.training.total}`;
+
+      const sectionsHtml = EPOC_DATA.map(cat => {
+        const { done, total } = counts[cat.id];
+        const filteredRows = cat.items
+          .map((label, idx) => ({ label, idx, checked: Boolean(map[makeEpocKey(cat.id, idx)]) }))
+          .filter(row => {
+            if (epocFilter === "achieved") return row.checked;
+            if (epocFilter === "unachieved") return !row.checked;
+            return true;
+          });
+
+        const rowsHtml = filteredRows.length === 0
+          ? `<div class="empty-msg">該当する項目はないよ</div>`
+          : filteredRows.map(row => `
+              <button
+                type="button"
+                class="epoc-row ${row.checked ? "checked" : ""}"
+                onclick="toggleEpocItem('${cat.id}', ${row.idx})"
+                aria-pressed="${row.checked}"
+              >
+                <span class="epoc-row-left">
+                  <span class="epoc-num">${row.idx + 1}</span>
+                  <span class="epoc-label">${escapeHtml(row.label)}</span>
+                </span>
+                <span class="epoc-status-text">${row.checked ? "達成" : "未達成"}</span>
+                <span class="epoc-status-box">${row.checked ? "✓" : ""}</span>
+              </button>
+            `).join("");
+
+        return `
+          <div class="card">
+            <div class="epoc-section-title">
+              <span class="epoc-section-heading">${escapeHtml(cat.title)}</span>
+              <span class="epoc-section-badge ${done === total ? "done" : ""}">${done} / ${total}</span>
+            </div>
+            <div>${rowsHtml}</div>
+          </div>
+        `;
+      }).join("");
+
+      epocSectionsContainer.innerHTML = sectionsHtml;
+    }
+
+    document.querySelectorAll("[data-epoc-filter]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        epocFilter = btn.dataset.epocFilter;
+        document.querySelectorAll("[data-epoc-filter]").forEach(b => {
+          b.classList.toggle("active", b.dataset.epocFilter === epocFilter);
+        });
+        renderEpoc();
+      });
+    });
+
+    // 設定管理
     function cloneDefaultConfig() {
       return {
         theme: DEFAULT_CONFIG.theme,
@@ -976,13 +1419,14 @@
     // バックアップ（書き出し・読み込み）
     function buildBackupPayload() {
       return {
-        app: "overtime-memo",
-        version: 1,
+        app: "overtime-memo-epoc",
+        version: 2,
         exportedAt: new Date().toISOString(),
         memos: loadMemos(),
         trash: loadTrash(),
         presets: loadPresets(),
-        config: loadConfig()
+        config: loadConfig(),
+        epoc: loadEpocMap()
       };
     }
 
@@ -996,6 +1440,9 @@
       if (data.config && typeof data.config === "object") {
         localStorage.setItem(CONFIG_KEY, JSON.stringify(data.config));
       }
+      if (data.epoc && typeof data.epoc === "object") {
+        saveEpocMap(data.epoc);
+      }
 
       const nextCfg = loadConfig();
       applyAppearance(nextCfg);
@@ -1003,6 +1450,7 @@
       renderQuickControls();
       renderPresets();
       renderMemos();
+      renderEpoc();
       showToast("バックアップを読み込んだよ");
     }
 
@@ -1025,7 +1473,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `overtime-memo-backup-${formatDateOffset(0)}.json`;
+      a.download = `overtime-epoc-backup-${formatDateOffset(0)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1254,7 +1702,7 @@
       startSelect.value = m.start;
       endSelect.value = m.end;
       reasonInput.value = m.reason;
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      switchPage("overtime");
       showToast("上の入力欄にコピーしたよ");
     };
 
@@ -1330,6 +1778,7 @@
     dateInput.value = formatDateOffset(0);
     renderPresets();
     renderMemos();
+    renderEpoc();
   </script>
 </body>
 </html>
